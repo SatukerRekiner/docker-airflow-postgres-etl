@@ -95,12 +95,11 @@ Na liście DAG-ów powinien być widoczny:
 
 Włącz go (suwak na ON), następnie wejdź do DAG-a i użyj przycisku **„Trigger DAG”**, aby uruchomić pipeline.
 
-##TU ZDJECIE airflow_dag.png
 
+
+![DAG w Airflow](img/airflow_dag.png)
 
 ---
-
-
 
 
 
@@ -217,3 +216,7 @@ Ten projekt pokazuje:
   - ładowanie danych z CSV,
   - model **wymiar + fakt**,
   - agregacje dzienne + dzienne po kategoriach.
+
+
+![Wyniki w Postgresie](img/postgres_results.png)
+
