@@ -31,8 +31,6 @@ airflow_postgres_project/
   │   └─ data/
   │       ├─ sales_data.csv       # dane sprzedażowe (fakt)
   │       └─ products.csv         # słownik produktów (wymiar)
-  ├─ logs/                        # logi Airflowa (volume)
-  ├─ plugins/                     # potencjalne pluginy Airflowa
   ├─ docker-compose.yml           # definicja stacka Docker
   └─ README.md                    # (ten plik)
 ```
