@@ -1,4 +1,4 @@
-# Mini ETL: Airflow + Postgres + Docker (sprzedaż dzienna i po kategoriach)
+# Mini ETL: Airflow + Postgres + Docker
 
 Projekt pokazuje prosty, ale realistyczny pipeline ETL zbudowany na:
 - **Docker + docker-compose**
@@ -19,31 +19,30 @@ Całość działa w kontenerach Docker:
   - `sales_raw` – warstwa „raw” (pojedyncze transakcje),
   - `sales_daily_agg` – dzienne agregaty (sumy, średnie, liczność),
   - `sales_category_agg` – dzienne agregaty po kategoriach.
+
 - `airflow-webserver` – UI Airflow (`http://localhost:8080`)
 - `airflow-scheduler` – scheduler, który wykonuje DAG-i
 
-Pliki projektu (lokalnie):
+---
+
+### 1.2. Struktura katalogów
 
 ```text
 airflow_postgres_project/
   ├─ dags/
   │   ├─ sales_etl_dag.py         # główny DAG ETL
   │   └─ data/
-  │       ├─ sales_data.csv       # dane sprzedażowe (fakt)
+  │       ├─ sales_data.csv       # dane sprzedażowe
   │       └─ products.csv         # słownik produktów (wymiar)
   ├─ docker-compose.yml           # definicja stacka Docker
   └─ README.md                    # (ten plik)
 ```
 
+---
+
 ## 2. Uruchomienie projektu
 
-### Wymagania
-
-- **Docker Desktop** z włączonym backendem Linux
-- (Opcjonalnie) PowerShell / bash do wygodnego odpalania poleceń
-
 ### 2.1. Start kontenerów
-
 W katalogu projektu:
 
 ```bash
@@ -56,7 +55,7 @@ Powinny uruchomić się 3 serwisy:
 - `airflow_postgres_project-airflow-webserver-1`
 - `airflow_postgres_project-airflow-scheduler-1`
 
-Można to sprawdzić:
+Można to łatwo sprawdzić:
 
 ```bash
 docker ps
@@ -72,13 +71,26 @@ docker compose up -d
 ### 2.3. Utworzenie użytkownika w Airflow
 
 ```bash
-docker exec -it airflow_postgres_project-airflow-webserver-1 airflow users create   --username admin   --firstname Admin   --lastname User   --role Admin   --email admin@example.com   --password admin
+docker exec -it airflow_postgres_project-airflow-webserver-1 airflow users create \
+  --username admin \
+  --firstname Admin \
+  --lastname User \
+  --role Admin \
+  --email admin@example.com \
+  --password admin
 ```
 
 ### 2.4. Connection do Postgresa (conn_id: `postgres_business`)
 
 ```bash
-docker exec -it airflow_postgres_project-airflow-webserver-1   airflow connections add postgres_business   --conn-type postgres   --conn-host postgres   --conn-login airflow   --conn-password airflow   --conn-port 5432   --conn-schema airflow
+docker exec -it airflow_postgres_project-airflow-webserver-1 \
+  airflow connections add postgres_business \
+  --conn-type postgres \
+  --conn-host postgres \
+  --conn-login airflow \
+  --conn-password airflow \
+  --conn-port 5432 \
+  --conn-schema airflow
 ```
 
 ## 3. Wejście do UI Airflow
@@ -91,23 +103,44 @@ Panel Airflow:
 
 Na liście DAG-ów powinien być widoczny:
 
-- `sales_etl_dag`
+- `sales_etl_dag` trzeba go włączyć oraz odpalić
 
-Włącz go (suwak na ON), następnie wejdź do DAG-a i użyj przycisku **„Trigger DAG”**, aby uruchomić pipeline.
-
-
-
+Tak wygląda działający po odpaleniu:
 ![DAG w Airflow](img/airflow_dag.png)
 
 ---
 
+## 4. Dane Wejściowe (CSV)
 
+### 4.1 `data/sales_data.csv`
+Dane sprzedażowe:
+```csv
+sale_date,product,amount
+2024-11-01,Book,50.00
+2024-11-01,Book,70.00
+2024-11-01,Game,120.00
+2024-11-02,Book,30.00
+2024-11-02,Keyboard,200.00
+2024-11-03,Mouse,80.00
+2024-11-03,Book,40.00
+2024-11-03,Game,150.00
+```
+
+### 4.2 `data/products.csv`
+Słownik produktów:
+```csv
+product,category
+Book,Books
+Game,Games
+Keyboard,Electronics
+Mouse,Electronics
+```
+---
 
 ## 5. Logika DAG-a (`sales_etl_dag.py`)
+DAG składa się z pięciu głównych tasków (wykonywanych w tej kolejności):
 
-DAG składa się z pięciu głównych tasków (działających w tej kolejności):
-
-1. **`create_tables`** – tworzy tabele, jeśli nie istnieją:
+1. **`create_tables`** – tworzy tabele:
 
    - `product_dim`
    - `sales_raw`
@@ -127,15 +160,25 @@ DAG składa się z pięciu głównych tasków (działających w tej kolejności)
    - zapisuje transakcje (data, produkt, kwota).
 
 4. **`aggregate_daily_sales`** (PostgresOperator)
-
-   - liczy dzienną sprzedaż
-
+   liczy dzienną sprzedaż
+   - 'total_amount' – suma kwot,
+   - 'avg_amount' – średnia wartość transakcji,
+   - 'transactions_count' – liczba transakcji.
+   zapisuje wynik do 'sales_daily_agg'.
 
 5. **`aggregate_daily_sales_by_category`** (PostgresOperator)
+   - łączy `sales_raw` z `product_dim`,
+   - agreguje sprzedaż po 'sale_date' i 'category',
+   - zapisuje wynik do 'sales_category_agg'
 
-   - łączy `sales_raw` z `product_dim` i liczy sprzedaż po kategoriach
+     
+W efekcie powstaje prosta struktura:
+   - warstwa surowa: 'sales_raw',
+   - agregaty dzienne: 'sales_daily_agg',
+   - agregaty dzienne po kategoriach: 'sales_category_agg'.
 
 ---
+
 
 ## 6. Struktura tabel i przykładowe wyniki
 
@@ -206,16 +249,7 @@ Przykład:
 
 ---
 
-## 8. Podsumowanie
 
-Ten projekt pokazuje:
-
-- uruchomienie **Airflowa i Postgresa w Dockerze**,
-- konfigurację **connection** w Airflow (`postgres_business`),
-- implementację **DAG-a ETL** w Pythonie:
-  - ładowanie danych z CSV,
-  - model **wymiar + fakt**,
-  - agregacje dzienne + dzienne po kategoriach.
 
 
 ![Wyniki w Postgresie](img/postgres_result.png)
