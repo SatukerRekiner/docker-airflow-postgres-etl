@@ -203,7 +203,7 @@ docker exec -it airflow_pg psql -U airflow -d airflow
 SELECT * FROM product_dim ORDER BY product_name;
 ```
 
-Przykład:
+Oczekiwany output dla naszych danych:
 
 ```text
  product_name |  category
@@ -226,7 +226,7 @@ SELECT * FROM sales_raw ORDER BY sale_date, id;
 SELECT * FROM sales_daily_agg ORDER BY sale_date;
 ```
 
-Przykład:
+Oczekiwany output dla naszych danych:
 
 ```text
  sale_date  | total_amount | avg_amount | transactions_count
@@ -242,7 +242,7 @@ Przykład:
 SELECT * FROM sales_category_agg ORDER BY sale_date, category;
 ```
 
-Przykład:
+Oczekiwany output dla naszych danych:
 
 ```text
  sale_date  |  category   | total_amount | transactions_count
