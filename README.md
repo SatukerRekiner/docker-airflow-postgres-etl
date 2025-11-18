@@ -218,5 +218,5 @@ Ten projekt pokazuje:
   - agregacje dzienne + dzienne po kategoriach.
 
 
-![Wyniki w Postgresie](img/postgres_results.png)
+![Wyniki w Postgresie](img/postgres_result.png)
 
