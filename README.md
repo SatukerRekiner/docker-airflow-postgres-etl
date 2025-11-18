@@ -150,45 +150,15 @@ DAG składa się z pięciu głównych tasków:
 
 4. **`aggregate_daily_sales`** (PostgresOperator)
 
-   - liczy dzienną sprzedaż:
+   - liczy dzienną sprzedaż
 
-     ```sql
-     INSERT INTO sales_daily_agg (sale_date, total_amount, avg_amount, transactions_count)
-     SELECT
-         sale_date,
-         SUM(amount) AS total_amount,
-         AVG(amount) AS avg_amount,
-         COUNT(*)    AS transactions_count
-     FROM sales_raw
-     GROUP BY sale_date
-     ON CONFLICT (sale_date) DO UPDATE
-     SET
-         total_amount       = EXCLUDED.total_amount,
-         avg_amount         = EXCLUDED.avg_amount,
-         transactions_count = EXCLUDED.transactions_count;
-     ```
+  
 
 5. **`aggregate_daily_sales_by_category`** (PostgresOperator)
 
-   - łączy `sales_raw` z `product_dim` i liczy sprzedaż po kategoriach:
+   - łączy `sales_raw` z `product_dim` i liczy sprzedaż po kategoriach
 
-     ```sql
-     INSERT INTO sales_category_agg (sale_date, category, total_amount, transactions_count)
-     SELECT
-         sr.sale_date,
-         p.category,
-         SUM(sr.amount) AS total_amount,
-         COUNT(*)       AS transactions_count
-     FROM sales_raw sr
-     JOIN product_dim p
-       ON p.product_name = sr.product
-     GROUP BY sr.sale_date, p.category
-     ON CONFLICT (sale_date, category) DO UPDATE
-     SET
-         total_amount       = EXCLUDED.total_amount,
-         transactions_count = EXCLUDED.transactions_count;
-     ```
-
+    
 **Kolejność tasków:**
 
 ```text
