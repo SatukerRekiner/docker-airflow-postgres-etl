@@ -247,10 +247,12 @@ Przykład:
  2024-11-03 | Games       |       150.00 |                  1
 ```
 
+### 6.5. Podgląd wyników w Postgresie
+
+Poniżej screen z psql po pełnym przebiegu DAG-a – widać dzienne agregaty
+oraz agregaty po kategoriach:
+
+![Wyniki w Postgresie](img/postgres_results.png)
+
 ---
-
-
-
-
-![Wyniki w Postgresie](img/postgres_result.png)
 
