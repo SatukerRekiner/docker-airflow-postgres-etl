@@ -79,6 +79,10 @@ docker exec -it airflow_postgres_project-airflow-webserver-1 airflow users creat
   --email admin@example.com \
   --password admin
 ```
+lub dla Powershell:
+```bash
+docker exec -it airflow_postgres_project-airflow-webserver-1 airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password admin
+```
 
 ### 2.4. Connection do Postgresa (conn_id: `postgres_business`)
 
@@ -91,6 +95,11 @@ docker exec -it airflow_postgres_project-airflow-webserver-1 \
   --conn-password airflow \
   --conn-port 5432 \
   --conn-schema airflow
+```
+
+lub dla Powershell:
+```bash
+docker exec -it airflow_postgres_project-airflow-webserver-1 airflow connections add postgres_business --conn-type postgres --conn-host postgres --conn-login airflow --conn-password airflow --conn-port 5432 --conn-schema airflow
 ```
 
 ## 3. Wejście do UI Airflow
