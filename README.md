@@ -95,39 +95,18 @@ Na liście DAG-ów powinien być widoczny:
 
 Włącz go (suwak na ON), następnie wejdź do DAG-a i użyj przycisku **„Trigger DAG”**, aby uruchomić pipeline.
 
-## 4. Dane wejściowe (CSV)
+##TU ZDJECIE airflow_dag.png
 
-### 4.1. `dags/data/sales_data.csv`
 
-Dane sprzedażowe (fakty):
+---
 
-```csv
-sale_date,product,amount
-2024-11-01,Book,50.00
-2024-11-01,Book,70.00
-2024-11-01,Game,120.00
-2024-11-02,Book,30.00
-2024-11-02,Keyboard,200.00
-2024-11-03,Mouse,80.00
-2024-11-03,Book,40.00
-2024-11-03,Game,150.00
-```
 
-### 4.2. `dags/data/products.csv`
 
-Słownik produktów (wymiar):
 
-```csv
-product,category
-Book,Books
-Game,Games
-Keyboard,Electronics
-Mouse,Electronics
-```
 
 ## 5. Logika DAG-a (`sales_etl_dag.py`)
 
-DAG składa się z pięciu głównych tasków:
+DAG składa się z pięciu głównych tasków (działających w tej kolejności):
 
 1. **`create_tables`** – tworzy tabele, jeśli nie istnieją:
 
@@ -152,22 +131,12 @@ DAG składa się z pięciu głównych tasków:
 
    - liczy dzienną sprzedaż
 
-  
 
 5. **`aggregate_daily_sales_by_category`** (PostgresOperator)
 
    - łączy `sales_raw` z `product_dim` i liczy sprzedaż po kategoriach
 
-    
-**Kolejność tasków:**
-
-```text
-create_tables
-    → load_product_dim_from_csv
-        → load_raw_from_csv
-            → aggregate_daily_sales
-                → aggregate_daily_sales_by_category
-```
+---
 
 ## 6. Struktura tabel i przykładowe wyniki
 
@@ -236,15 +205,6 @@ Przykład:
  2024-11-03 | Games       |       150.00 |                  1
 ```
 
-## 7. Możliwe rozszerzenia
-
-Kilka pomysłów na dalszy rozwój:
-
-- dodanie **data quality checks** (np. tasky sprawdzające liczbę rekordów, NULL-e),
-- dodanie warstwy dat (`date_dim`) i raportowania po tygodniach/miesiącach,
-- eksport agregatów do innej bazy / hurtowni (np. Snowflake, BigQuery),
-- dodanie prostego dashboardu (np. w Metabase / Superset) nad `sales_daily_agg`.
-
 ---
 
 ## 8. Podsumowanie
@@ -257,8 +217,3 @@ Ten projekt pokazuje:
   - ładowanie danych z CSV,
   - model **wymiar + fakt**,
   - agregacje dzienne + dzienne po kategoriach.
-
-Można go traktować jako bazowy przykład:
-- jak spiąć Airflowa z bazą danych,
-- jak zorganizować prostą mini-hurtownię danych w Postgresie,
-- jak przygotować pipeline do dalszej rozbudowy (np. pod projekty Data Engineer / Analytics Engineer).
